@@ -1,4 +1,8 @@
-const axios = require("axios");
+import axios from "axios";
+import templates from "./templates";
+import utils from "./utils";
+
+import { ProductParams, ProductSellableParams } from "./types";
 
 export namespace PromoStandards {
   /**
@@ -28,7 +32,7 @@ export namespace PromoStandards {
 
   type ResponseFormat = "xml" | "json";
 
-  type MethodType = "getProductSellable";
+  type MethodType = "getProductSellable" | "getProduct";
 
   interface BaseAttributes {
     id?: string;
@@ -63,20 +67,72 @@ export namespace PromoStandards {
       throw new ReferenceError(`'${service}' endpoint is undefined`);
     }
 
-    sendRequest(service: ServiceType, method: MethodType, params: any): any {
+    sendRequest<ParamType>(
+      service: ServiceType,
+      method: MethodType,
+      params: ParamType
+    ): any {
       const endpoint = this.getEndpoint(service);
 
-      return endpoint;
+      const soapTemplateIndex: {
+        [index: string]: any;
+      } = templates;
+
+      const xml = soapTemplateIndex[method](
+        Object.assign(
+          {
+            id: this.id,
+            password: this.password,
+            wsVersion: endpoint.version,
+            majorVersion: utils.majorVersion(endpoint.version),
+          },
+          params
+        )
+      );
+
+      return axios
+        .post(endpoint.url, xml, {
+          headers: {
+            "Content-Type": "text/xml",
+            SOAPAction: method,
+          },
+        })
+        .then((result) => {
+          if (this.format === "json") {
+            return utils.convertXMLtoJSON(result.data);
+          }
+
+          return result;
+        });
+      //   .then((result: any) => {
+      //     this.format === "json"
+      //       ? resolve(Utils.convertXMLtoJSON(result.data))
+      //       : resolve(result.data);
+      //   })
+      //   .catch((error: Error) => reject(error));
+
+      //   return { endpoint, method, params, xml };
 
       //   return axios.post("");
     }
 
     readonly productData = {
-      getProductSellable: this.sendRequest.bind(
-        this,
-        "ProductData",
-        "getProductSellable"
-      ),
+      getProductSellable: (
+        params: ProductSellableParams = { isSellable: true }
+      ) =>
+        this.sendRequest.bind(
+          this,
+          "ProductData",
+          "getProductSellable",
+          params
+        )(),
+
+      getProduct: (
+        params: ProductParams = {
+          localizationCountry: "US",
+          localizationLanguage: "en",
+        }
+      ) => this.sendRequest.bind(this, "ProductData", "getProduct", params)(),
     };
   }
 }

@@ -1,0 +1,31 @@
+//- <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
+//-     <Body>
+//-         <GetProductSellableRequest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.promostandards.org/WSDL/ProductDataService/2.0.0/">
+//-         <wsVersion xmlns="http://www.promostandards.org/WSDL/ProductDataService/2.0.0/SharedObjects/">2.0.0</wsVersion>
+//-         <id xmlns="http://www.promostandards.org/WSDL/ProductDataService/2.0.0/SharedObjects/">webdev23</id>
+//-         <password xmlns="http://www.promostandards.org/WSDL/ProductDataService/2.0.0/SharedObjects/">!falkMUFqh$431y</password>
+//-         <isSellable xmlns="http://www.promostandards.org/WSDL/ProductDataService/2.0.0/SharedObjects/">true</isSellable>
+//-         </GetProductSellableRequest>
+//-     </Body>
+//- </Envelope>
+
+p #{name}'s Pug source code!
+
+
+//- soapenv:Envelope(
+//-     xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+//-     xmlns:ns="http://www.promostandards.org/WSDL/ProductDataService/" + majorVersion + "/"
+//-     xmlns:shar="http://www.promostandards.org/WSDL/ProductDataService/" + majorVersion + "/SharedObjects/"
+//-   )
+//-   soapenv:Header/
+//-   soapenv:Body
+//-     ns:GetProductSellableRequest
+//-       shar:wsVersion #{wsVersion}
+//-       shar:id #{id}
+//-       if password
+//-         shar:password #{password}
+//-       if productId
+//-         shar:productId #{productId}
+//-       if partId
+//-         shar:partId #{partId}
+//-       shar:isSellable #{isSellable}
